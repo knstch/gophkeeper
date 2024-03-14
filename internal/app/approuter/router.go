@@ -8,6 +8,6 @@ import (
 
 func InitRouter(app *fiber.App, handlers *handler.Handlers, storage common.Storager) {
 	auth := app.Group("/auth")
-	auth.Post("/register/:email/password/:password", handlers.RegisterWithEmail())
-	auth.Post("/login/:email/password/:password", handlers.AuthenticateWithEmail())
+	auth.Post("/register", handlers.RegisterWithEmail())
+	auth.Post("/", handlers.AuthenticateWithEmail())
 }

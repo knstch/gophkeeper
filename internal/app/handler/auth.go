@@ -11,13 +11,20 @@ type Message struct {
 
 func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		accessToken, err := h.AuthService.SignUp(c.Params("email"), c.Params("password"))
-		if err.Error() == common.ErrIntegrityViolation {
-			return c.Status(409).JSON(&Message{
-				Msg: "This email is already taken",
-			})
-		}
+		accessToken, err := h.AuthService.SignUp(c.Context(), c.Request().Body())
 		if err != nil {
+			if err.Error() == common.ErrIntegrityViolation {
+				return c.Status(409).JSON(&Message{
+					Msg: "This email is already taken",
+				})
+			}
+
+			if err != nil {
+				return c.Status(400).JSON(&Message{
+					Msg: err.Error(),
+				})
+			}
+
 			return err
 		}
 
@@ -35,13 +42,13 @@ func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 
 func (h *Handlers) AuthenticateWithEmail() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		accessToken, err := h.AuthService.SignIn(c.Params("email"), c.Params("password"))
-		if err.Error() == common.ErrUserNotFound {
-			return c.Status(404).JSON(&Message{
-				Msg: "This user is not found",
-			})
-		}
+		accessToken, err := h.AuthService.SignIn(c.Request().Body())
 		if err != nil {
+			if err.Error() == common.ErrUserNotFound {
+				return c.Status(404).JSON(&Message{
+					Msg: "Wrong email or password",
+				})
+			}
 			return err
 		}
 

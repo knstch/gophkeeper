@@ -21,11 +21,13 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/fiber/v2 v2.52.2
 	github.com/gofiber/utils/v2 v2.0.0-beta.3 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/joho/godotenv v1.5.1
 	github.com/klauspost/compress v1.17.6 // indirect
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-colorable v0.1.13 // indirect

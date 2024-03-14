@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/knstch/gophkeeper/cmd/config"
 	"github.com/knstch/gophkeeper/internal/app/approuter"
 	"github.com/knstch/gophkeeper/internal/app/handler"
 	"github.com/knstch/gophkeeper/internal/app/storage/psql"
@@ -16,6 +17,8 @@ func main() {
 }
 
 func run() error {
+	config.ParseConfig()
+
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
@@ -23,7 +26,7 @@ func run() error {
 		},
 	})
 
-	psqlStorage, err := psql.NewPsqlStorage("postgres://admin:password@localhost:7070/gophkeeper?sslmode=disable")
+	psqlStorage, err := psql.NewPsqlStorage(config.ReadyConfig.DSN)
 	if err != nil {
 		return err
 	}
@@ -32,5 +35,5 @@ func run() error {
 
 	approuter.InitRouter(app, handlers, psqlStorage)
 
-	return app.Listen(":8080")
+	return app.Listen(config.ReadyConfig.ServerAddr)
 }
