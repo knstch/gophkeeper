@@ -1,35 +1,36 @@
 package main
 
 import (
-	"context"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+	"log"
 
-	"github.com/gofiber/fiber/v3/log"
+	"github.com/gofiber/fiber/v2"
+	"github.com/knstch/gophkeeper/internal/app/approuter"
+	"github.com/knstch/gophkeeper/internal/app/handler"
+	"github.com/knstch/gophkeeper/internal/app/storage/psql"
 )
 
 func main() {
-	srv := http.Server{
-		Addr: "localhost:8080",
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run() error {
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		},
+	})
+
+	psqlStorage, err := psql.NewPsqlStorage("postgres://admin:password@localhost:7070/gophkeeper?sslmode=disable")
+	if err != nil {
+		return err
 	}
 
-	idleConnsClosed := make(chan struct{})
-	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
-		<-sigint
+	handlers := handler.NewHandler(psqlStorage)
 
-		if err := srv.Shutdown(context.Background()); err != nil {
-			log.Error("shutdown error", err)
-		}
-		close(idleConnsClosed)
-	}()
+	approuter.InitRouter(app, handlers, psqlStorage)
 
-	go func() {
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			log.Error("run error", err)
-		}
-	}()
+	return app.Listen(":8080")
 }
