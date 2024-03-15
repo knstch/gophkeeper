@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strings"
+
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/knstch/gophkeeper/internal/app/common"
 )
@@ -11,13 +13,22 @@ func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 		if err != nil {
 			if err.Error() == common.ErrIntegrityViolation.Error() {
 				return c.Status(409).JSON(&Message{
-					Msg: "эта почта уже занята",
+					Error: "эта почта уже занята",
 				})
 			}
-
+			if strings.Contains(err.Error(), common.ErrBadPass.Error()) {
+				return c.Status(400).JSON(&Message{
+					Error: err.Error(),
+				})
+			}
+			if strings.Contains(err.Error(), common.ErrBadEmail.Error()) {
+				return c.Status(400).JSON(&Message{
+					Error: err.Error(),
+				})
+			}
 			if err != nil {
 				return c.Status(400).JSON(&Message{
-					Msg: err.Error(),
+					Error: err.Error(),
 				})
 			}
 

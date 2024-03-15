@@ -13,12 +13,12 @@ func (h *Handlers) StorePrivates() func(c *fiber.Ctx) error {
 		if err := h.SecretService.StoreSecret(c); err != nil {
 			if strings.Contains(err.Error(), common.ErrFieldIsEmpty.Error()) {
 				return c.Status(400).JSON(Message{
-					Msg: "поле не может быть пустым",
+					Error: "поле не может быть пустым",
 				})
 			}
 			fmt.Println(err)
 			return c.Status(500).JSON(Message{
-				Msg: "внутренняя ошибка сервиса",
+				Error: "внутренняя ошибка сервиса",
 			})
 		}
 		return c.Status(202).JSON(Message{
@@ -32,7 +32,7 @@ func (h *Handlers) GetAllPrivates() func(c *fiber.Ctx) error {
 		data, err := h.SecretService.GetAllSecrets(c)
 		if err != nil {
 			return c.Status(500).JSON(Message{
-				Msg: "внутренняя ошибка сервиса",
+				Error: "внутренняя ошибка сервиса",
 			})
 		}
 		return c.Status(200).JSON(data)
@@ -44,7 +44,7 @@ func (h *Handlers) GetServicePrivates() func(c *fiber.Ctx) error {
 		data, err := h.SecretService.GetServiceSecrets(c)
 		if err != nil {
 			return c.Status(500).JSON(Message{
-				Msg: "внутренняя ошибка сервиса",
+				Error: "внутренняя ошибка сервиса",
 			})
 		}
 		return c.Status(200).JSON(data)
@@ -56,16 +56,16 @@ func (h *Handlers) EditServicePrivates() func(c *fiber.Ctx) error {
 		if err := h.SecretService.EditServiceSecrets(c); err != nil {
 			if strings.Contains(err.Error(), common.ErrFieldIsEmpty.Error()) {
 				return c.Status(400).JSON(Message{
-					Msg: "поле не может быть пустым",
+					Error: "поле не может быть пустым",
 				})
 			}
 			if err == common.ErroNoDataWereFound {
 				return c.Status(400).JSON(Message{
-					Msg: "ошибка запроса, данные не найдены",
+					Error: "ошибка запроса, данные не найдены",
 				})
 			}
 			return c.Status(500).JSON(Message{
-				Msg: "внутренняя ошибка сервиса",
+				Error: "внутренняя ошибка сервиса",
 			})
 		}
 		return c.Status(200).JSON(Message{
@@ -79,11 +79,11 @@ func (h *Handlers) DeleteServicePrivates() func(c *fiber.Ctx) error {
 		if err := h.SecretService.DeleteSecrets(c); err != nil {
 			if err == common.ErroNoDataWereFound {
 				return c.Status(400).JSON(Message{
-					Msg: "ошибка запроса, данные не найдены",
+					Error: "ошибка запроса, данные не найдены",
 				})
 			}
 			return c.Status(500).JSON(Message{
-				Msg: "внутренняя ошибка сервиса",
+				Error: "внутренняя ошибка сервиса",
 			})
 		}
 		return c.Status(200).JSON(Message{
