@@ -19,6 +19,9 @@ func NewHandler(storage common.Storager) *Handlers {
 }
 
 type Message struct {
-	Msg   string `json:"message"`
+	Msg string `json:"message"`
+}
+
+type Err struct {
 	Error string `json:"error"`
 }

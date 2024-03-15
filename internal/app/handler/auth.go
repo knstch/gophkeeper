@@ -12,22 +12,22 @@ func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 		accessToken, err := h.AuthService.SignUp(c.Context(), c.Request().Body())
 		if err != nil {
 			if err.Error() == common.ErrIntegrityViolation.Error() {
-				return c.Status(409).JSON(&Message{
+				return c.Status(409).JSON(&Err{
 					Error: "эта почта уже занята",
 				})
 			}
 			if strings.Contains(err.Error(), common.ErrBadPass.Error()) {
-				return c.Status(400).JSON(&Message{
+				return c.Status(400).JSON(&Err{
 					Error: err.Error(),
 				})
 			}
 			if strings.Contains(err.Error(), common.ErrBadEmail.Error()) {
-				return c.Status(400).JSON(&Message{
+				return c.Status(400).JSON(&Err{
 					Error: err.Error(),
 				})
 			}
 			if err != nil {
-				return c.Status(400).JSON(&Message{
+				return c.Status(400).JSON(&Err{
 					Error: err.Error(),
 				})
 			}
