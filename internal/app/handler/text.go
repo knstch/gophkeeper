@@ -7,12 +7,12 @@ import (
 	"github.com/knstch/gophkeeper/internal/app/common"
 )
 
-func (h *Handlers) StorePrivates() func(c *fiber.Ctx) error {
+func (h *Handlers) StoreText() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		if err := h.SecretService.StoreSecret(c); err != nil {
+		if err := h.TextService.StoreTexts(c); err != nil {
 			if strings.Contains(err.Error(), common.ErrFieldIsEmpty.Error()) {
 				return c.Status(400).JSON(&Err{
-					Error: "поле не может быть пустым",
+					Error: err.Error(),
 				})
 			}
 			if strings.Contains(err.Error(), common.ErrLength) {
@@ -21,52 +21,48 @@ func (h *Handlers) StorePrivates() func(c *fiber.Ctx) error {
 				})
 			}
 			return c.Status(500).JSON(&Err{
-				Error: "внутренняя ошибка сервиса",
+				Error: err.Error(),
 			})
 		}
-		return c.Status(202).JSON(&Message{
-			Msg: "данны успешно сохранены!",
-		})
+		return nil
 	}
 }
 
-func (h *Handlers) GetAllPrivates() func(c *fiber.Ctx) error {
+func (h *Handlers) GetAllTexts() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		data, err := h.SecretService.GetAllSecrets(c)
+		data, err := h.TextService.GetAllTexts(c)
 		if err != nil {
-			if err == common.ErroNoDataWereFound {
-				return c.Status(204).JSON(&Err{
-					Error: "пусто",
-				})
-			}
 			return c.Status(500).JSON(&Err{
-				Error: "внутренняя ошибка сервиса",
+				Error: err.Error(),
+			})
+		}
+		if len(data.Texts) == 0 {
+			return c.Status(204).JSON(&Err{
+				Error: "пусто",
 			})
 		}
 		return c.Status(200).JSON(data)
 	}
 }
 
-func (h *Handlers) GetServicePrivates() func(c *fiber.Ctx) error {
+func (h *Handlers) GetTextByTitle() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		data, err := h.SecretService.GetSecretsByService(c)
+		data, err := h.TextService.GetTextByTitle(c)
 		if err != nil {
 			if err == common.ErroNoDataWereFound {
-				return c.Status(204).JSON(&Err{
-					Error: "пусто",
-				})
+				return c.Status(204).JSON(data)
 			}
 			return c.Status(500).JSON(&Err{
-				Error: "внутренняя ошибка сервиса",
+				Error: err.Error(),
 			})
 		}
 		return c.Status(200).JSON(data)
 	}
 }
 
-func (h *Handlers) EditServicePrivates() func(c *fiber.Ctx) error {
+func (h *Handlers) EditText() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		if err := h.SecretService.EditServiceSecrets(c); err != nil {
+		if err := h.TextService.EditText(c); err != nil {
 			if strings.Contains(err.Error(), common.ErrFieldIsEmpty.Error()) {
 				return c.Status(400).JSON(&Err{
 					Error: "поле не может быть пустым",
@@ -83,18 +79,18 @@ func (h *Handlers) EditServicePrivates() func(c *fiber.Ctx) error {
 				})
 			}
 			return c.Status(500).JSON(&Err{
-				Error: "внутренняя ошибка сервиса",
+				Error: err.Error(),
 			})
 		}
 		return c.Status(200).JSON(&Message{
-			Msg: "данные успешно изменены",
+			Msg: "текст изменен",
 		})
 	}
 }
 
-func (h *Handlers) DeleteServicePrivates() func(c *fiber.Ctx) error {
+func (h *Handlers) DeleteText() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		if err := h.SecretService.DeleteSecrets(c); err != nil {
+		if err := h.TextService.DeleteText(c); err != nil {
 			if err == common.ErroNoDataWereFound {
 				return c.Status(400).JSON(&Err{
 					Error: "ошибка запроса, данные не найдены",

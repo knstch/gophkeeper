@@ -14,17 +14,8 @@ type SecretService struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
 	Uuid     string `json:"uuid"`
+	Metadata string `json:"metadata"`
 	storage  common.Storager
-}
-
-func retrieveLogin(c *fiber.Ctx) (string, error) {
-	if c.Locals("login") == nil {
-		return "", common.ErrNotLoggedIn
-	}
-
-	userEmail := c.Locals("login").(string)
-
-	return userEmail, nil
 }
 
 func NewSecretService(storage common.Storager) *SecretService {
@@ -38,27 +29,26 @@ func (secret *SecretService) StoreSecret(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := validation.NewSecretsToValidate(secret.Service, secret.Login, secret.Password).
+	if err := validation.NewSecretsToValidate(secret.Service, secret.Login, secret.Password, secret.Metadata).
 		ValidateSecrets(c.Context()); err != nil {
 		return err
 	}
 
-	if c.Locals("login") == nil {
-		return common.ErrNotLoggedIn
-	}
-
-	userEmail := c.Locals("login").(string)
-
-	if err := secret.storage.StoreSecrets(secret.Service, secret.Login,
-		secret.Password, userEmail); err != nil {
+	email, err := common.RetrieveLogin(c)
+	if err != nil {
 		return err
 	}
-	secret.storage.GetAllSecrets(userEmail)
+
+	if err := secret.storage.StoreSecrets(secret.Service, secret.Login,
+		secret.Password, email, secret.Metadata); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (secret *SecretService) GetAllSecrets(c *fiber.Ctx) (common.AllSecrets, error) {
-	email, err := retrieveLogin(c)
+	email, err := common.RetrieveLogin(c)
 	if err != nil {
 		return common.AllSecrets{}, err
 	}
@@ -68,25 +58,33 @@ func (secret *SecretService) GetAllSecrets(c *fiber.Ctx) (common.AllSecrets, err
 		return common.AllSecrets{}, err
 	}
 
-	return allSecrets, nil
+	if len(allSecrets.Secrets) == 0 {
+		return common.AllSecrets{}, common.ErroNoDataWereFound
+	}
+
+	return *allSecrets, nil
 }
 
-func (secret *SecretService) GetServiceSecrets(c *fiber.Ctx) (common.AllSecrets, error) {
-	email, err := retrieveLogin(c)
+func (secret *SecretService) GetSecretsByService(c *fiber.Ctx) (common.AllSecrets, error) {
+	email, err := common.RetrieveLogin(c)
 	if err != nil {
 		return common.AllSecrets{}, err
 	}
 
-	allSecrets, err := secret.storage.GeServiceRelatedSecrets(email, c.Params("service"))
+	allSecrets, err := secret.storage.GetServiceRelatedSecrets(email, c.Params("service"))
 	if err != nil {
 		return common.AllSecrets{}, err
 	}
 
-	return allSecrets, nil
+	if len(allSecrets.Secrets) == 0 {
+		return common.AllSecrets{}, common.ErroNoDataWereFound
+	}
+
+	return *allSecrets, nil
 }
 
 func (secret *SecretService) EditServiceSecrets(c *fiber.Ctx) error {
-	email, err := retrieveLogin(c)
+	email, err := common.RetrieveLogin(c)
 	if err != nil {
 		return err
 	}
@@ -95,12 +93,12 @@ func (secret *SecretService) EditServiceSecrets(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := validation.NewSecretsToValidate(secret.Service, secret.Login, secret.Password).
+	if err := validation.NewSecretsToValidate(secret.Service, secret.Login, secret.Password, secret.Metadata).
 		ValidateSecrets(c.Context()); err != nil {
 		return err
 	}
 
-	if err = secret.storage.EditSecret(email, secret.Uuid, secret.Service, secret.Login, secret.Password); err != nil {
+	if err = secret.storage.EditSecret(email, secret.Uuid, secret.Service, secret.Login, secret.Password, secret.Metadata); err != nil {
 		return err
 	}
 
@@ -108,7 +106,7 @@ func (secret *SecretService) EditServiceSecrets(c *fiber.Ctx) error {
 }
 
 func (secret *SecretService) DeleteSecrets(c *fiber.Ctx) error {
-	email, err := retrieveLogin(c)
+	email, err := common.RetrieveLogin(c)
 	if err != nil {
 		return err
 	}

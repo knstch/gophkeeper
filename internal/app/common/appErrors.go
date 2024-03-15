@@ -2,6 +2,10 @@ package common
 
 import "errors"
 
+const (
+	ErrLength = "значение не может быть больше"
+)
+
 var (
 	ErrIntegrityViolation = errors.New(`ERROR: duplicate key value violates unique constraint "credentials_pk" (SQLSTATE 23505)`)
 	ErrUserNotFound       = errors.New(`record not found`)
@@ -11,4 +15,5 @@ var (
 	ErrInvalidToken       = errors.New("токен невалиден")
 	ErroNoDataWereFound   = errors.New("данные не найдены")
 	ErrFieldIsEmpty       = errors.New("значение не может быть пустым")
+	ErrTextDouble         = errors.New("этот заголовок уже использован")
 )

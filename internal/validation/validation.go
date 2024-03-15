@@ -84,33 +84,66 @@ func passwordValidation(password string) validation.RuleFunc {
 	}
 }
 
-type secretsToValidate struct {
+type secretToValidate struct {
 	service  string
 	login    string
 	password string
+	metadata string
 }
 
-func NewSecretsToValidate(service, login, password string) *secretsToValidate {
-	return &secretsToValidate{
+func NewSecretsToValidate(service, login, password, metadata string) *secretToValidate {
+	return &secretToValidate{
 		service:  service,
 		login:    login,
 		password: password,
+		metadata: metadata,
 	}
 }
 
-func (secrets secretsToValidate) ValidateSecrets(ctx context.Context) error {
+func (secrets secretToValidate) ValidateSecrets(ctx context.Context) error {
 	if err := validation.ValidateStructWithContext(ctx, &secrets,
 		validation.Field(&secrets.service,
 			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
-			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d", 255)),
+			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d символов", 255)),
 		),
 		validation.Field(&secrets.login,
 			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
-			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d", 255)),
+			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d символов", 255)),
 		),
 		validation.Field(&secrets.password,
 			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
-			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d", 255)),
+			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d символов", 255)),
+		),
+		validation.Field(&secrets.metadata,
+			validation.RuneLength(1, 1000).Error(fmt.Sprintf("значение не может быть больше %d символов", 1000)),
+		),
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+type textToValidate struct {
+	title string
+	text  string
+}
+
+func NewTextsToValidate(title, text string) *textToValidate {
+	return &textToValidate{
+		title: title,
+		text:  text,
+	}
+}
+
+func (text textToValidate) ValidateText(ctx context.Context) error {
+	if err := validation.ValidateStructWithContext(ctx, &text,
+		validation.Field(&text.title,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d символов", 255)),
+		),
+		validation.Field(&text.text,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.RuneLength(1, 65535).Error(fmt.Sprintf("значение не может быть больше %d символов", 65535)),
 		),
 	); err != nil {
 		return err

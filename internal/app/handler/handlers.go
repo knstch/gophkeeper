@@ -4,11 +4,13 @@ import (
 	"github.com/knstch/gophkeeper/internal/app/common"
 	"github.com/knstch/gophkeeper/internal/app/service/auth"
 	"github.com/knstch/gophkeeper/internal/app/service/secret"
+	"github.com/knstch/gophkeeper/internal/app/service/text"
 )
 
 type Handlers struct {
 	AuthService   *auth.AuthService
 	SecretService *secret.SecretService
+	TextService   *text.TextService
 }
 
 func NewHandler(storage common.Storager) *Handlers {

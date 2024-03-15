@@ -18,4 +18,11 @@ func InitRouter(app *fiber.App, handlers *handler.Handlers, storage common.Stora
 	secret.Get("/:service", handlers.GetServicePrivates())
 	secret.Put("/", handlers.EditServicePrivates())
 	secret.Delete("/:uuid", handlers.DeleteServicePrivates())
+
+	text := app.Group("/text", middleware.WithCookieLogin())
+	text.Post("/", handlers.StoreText())
+	text.Get("/", handlers.GetAllTexts())
+	text.Get("/:title", handlers.GetTextByTitle())
+	text.Put("/", handlers.EditText())
+	text.Delete("/:uuid", handlers.DeleteText())
 }
