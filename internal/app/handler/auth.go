@@ -5,17 +5,13 @@ import (
 	"github.com/knstch/gophkeeper/internal/app/common"
 )
 
-type Message struct {
-	Msg string `json:"message"`
-}
-
 func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		accessToken, err := h.AuthService.SignUp(c.Context(), c.Request().Body())
 		if err != nil {
 			if err.Error() == common.ErrIntegrityViolation {
 				return c.Status(409).JSON(&Message{
-					Msg: "This email is already taken",
+					Msg: "эта почта уже занята",
 				})
 			}
 
@@ -35,7 +31,7 @@ func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 		})
 
 		return c.Status(200).JSON(&Message{
-			Msg: "You have successfully signed up!",
+			Msg: "вы успешно залогинились!",
 		})
 	}
 }
@@ -46,7 +42,7 @@ func (h *Handlers) AuthenticateWithEmail() func(c *fiber.Ctx) error {
 		if err != nil {
 			if err.Error() == common.ErrUserNotFound {
 				return c.Status(404).JSON(&Message{
-					Msg: "Wrong email or password",
+					Msg: "неверная почта или пароль",
 				})
 			}
 			return err
@@ -59,7 +55,7 @@ func (h *Handlers) AuthenticateWithEmail() func(c *fiber.Ctx) error {
 		})
 
 		return c.Status(200).JSON(&Message{
-			Msg: "You have successfully signed in!",
+			Msg: "вы успешно залогинились!",
 		})
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/knstch/gophkeeper/internal/app/common"
-	"github.com/knstch/gophkeeper/internal/app/pkg/service/jwt"
+	"github.com/knstch/gophkeeper/internal/app/service/jwt"
 	"github.com/knstch/gophkeeper/internal/validation"
 )
 

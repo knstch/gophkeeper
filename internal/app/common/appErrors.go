@@ -9,6 +9,9 @@ const (
 )
 
 var (
-	ErrBadEmail = errors.New("введите email в формате example@example.com")
-	ErrBadPass  = errors.New("в пароле должна быть как минимум одна заглавная буква, цифра и длина от 8 символов")
+	ErrBadEmail         = errors.New("введите email в формате example@example.com")
+	ErrBadPass          = errors.New("в пароле должна быть как минимум одна заглавная буква, цифра и длина от 8 символов")
+	ErrNotLoggedIn      = errors.New("зарегестрируйтесь в сервисе или войдите в свой аккаунт")
+	ErrInvalidToken     = errors.New("токен невалиден")
+	ErroNoDataWereFound = errors.New("данные не найдены")
 )
