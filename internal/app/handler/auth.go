@@ -9,7 +9,7 @@ func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		accessToken, err := h.AuthService.SignUp(c.Context(), c.Request().Body())
 		if err != nil {
-			if err.Error() == common.ErrIntegrityViolation {
+			if err.Error() == common.ErrIntegrityViolation.Error() {
 				return c.Status(409).JSON(&Message{
 					Msg: "эта почта уже занята",
 				})
@@ -40,7 +40,7 @@ func (h *Handlers) AuthenticateWithEmail() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		accessToken, err := h.AuthService.SignIn(c.Request().Body())
 		if err != nil {
-			if err.Error() == common.ErrUserNotFound {
+			if err.Error() == common.ErrUserNotFound.Error() {
 				return c.Status(404).JSON(&Message{
 					Msg: "неверная почта или пароль",
 				})

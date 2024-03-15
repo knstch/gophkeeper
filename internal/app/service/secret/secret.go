@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/knstch/gophkeeper/internal/app/common"
+	"github.com/knstch/gophkeeper/internal/validation"
 
 	fiber "github.com/gofiber/fiber/v2"
 )
@@ -12,6 +13,7 @@ type SecretService struct {
 	Service  string `json:"service"`
 	Login    string `json:"login"`
 	Password string `json:"password"`
+	Uuid     string `json:"uuid"`
 	storage  common.Storager
 }
 
@@ -31,8 +33,13 @@ func NewSecretService(storage common.Storager) *SecretService {
 	}
 }
 
-func (secret *SecretService) StoreSecret(c *fiber.Ctx, body []byte) error {
-	if err := json.Unmarshal(body, secret); err != nil {
+func (secret *SecretService) StoreSecret(c *fiber.Ctx) error {
+	if err := json.Unmarshal(c.Body(), &secret); err != nil {
+		return err
+	}
+
+	if err := validation.NewSecretsToValidate(secret.Service, secret.Login, secret.Password).
+		ValidateSecrets(c.Context()); err != nil {
 		return err
 	}
 
@@ -84,12 +91,29 @@ func (secret *SecretService) EditServiceSecrets(c *fiber.Ctx) error {
 		return err
 	}
 
-	var secretToEdit common.SecretToEdit
-	if err = json.Unmarshal(c.Body(), &secretToEdit); err != nil {
+	if err = json.Unmarshal(c.Body(), &secret); err != nil {
 		return err
 	}
 
-	if err = secret.storage.EditSecret(email, secretToEdit); err != nil {
+	if err := validation.NewSecretsToValidate(secret.Service, secret.Login, secret.Password).
+		ValidateSecrets(c.Context()); err != nil {
+		return err
+	}
+
+	if err = secret.storage.EditSecret(email, secret.Uuid, secret.Service, secret.Login, secret.Password); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (secret *SecretService) DeleteSecrets(c *fiber.Ctx) error {
+	email, err := retrieveLogin(c)
+	if err != nil {
+		return err
+	}
+
+	if err = secret.storage.DeleteSecret(email, c.Params("uuid")); err != nil {
 		return err
 	}
 

@@ -1,7 +1,6 @@
 package psql
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -60,7 +59,6 @@ func (storage *PsqlStorage) StoreSecrets(service, login, password, userEmail str
 	}
 
 	if err := storage.db.Create(secret).Error; err != nil {
-		fmt.Println(err)
 		return err
 	}
 	return nil
@@ -86,10 +84,10 @@ func (storage *PsqlStorage) GeServiceRelatedSecrets(userEmail, service string) (
 	}, nil
 }
 
-func (storage *PsqlStorage) EditSecret(userEmail string, secretToEdit common.SecretToEdit) error {
+func (storage *PsqlStorage) EditSecret(userEmail, uuid, service, login, password string) error {
 	var checkSecret common.Secrets
 
-	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, secretToEdit.Uuid).
+	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, uuid).
 		First(&checkSecret).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return common.ErroNoDataWereFound
@@ -97,16 +95,42 @@ func (storage *PsqlStorage) EditSecret(userEmail string, secretToEdit common.Sec
 		return err
 	}
 
-	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, secretToEdit.Uuid).
+	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, uuid).
 		Save(&common.Secrets{
 			Uuid:      checkSecret.Uuid,
 			Email:     userEmail,
 			UpdatedAt: time.Now(),
-			Service:   secretToEdit.Service,
-			Login:     secretToEdit.Login,
-			Password:  secretToEdit.Password,
+			Service:   service,
+			Login:     login,
+			Password:  password,
 		}).Error; err != nil {
 		return err
 	}
+	return nil
+}
+
+func (storage *PsqlStorage) DeleteSecret(userEmail, uuid string) error {
+	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, uuid).Delete(&common.Secrets{}).Error; err != nil {
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (storage *PsqlStorage) AddTextData(text, title, userEmail string) error {
+	readyText := &common.TextData{
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Uuid:      uuid.New().String(),
+		Email:     userEmail,
+		Title:     title,
+		Text:      text,
+	}
+
+	if err := storage.db.Create(readyText).Error; err != nil {
+		return err
+	}
+
 	return nil
 }

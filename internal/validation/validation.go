@@ -2,6 +2,7 @@ package validation
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"unicode"
 
@@ -24,11 +25,11 @@ func NewCredentialsToValidate(email, password string) *credentialsToValidate {
 func (credentials credentialsToValidate) ValidateCredentials(ctx context.Context) error {
 	if err := validation.ValidateStructWithContext(ctx, &credentials,
 		validation.Field(&credentials.email,
-			validation.Required.Error(common.ErrFieldIsEmpty),
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
 			validation.By(emailValidation(credentials.email)),
 		),
 		validation.Field(&credentials.password,
-			validation.Required.Error(common.ErrFieldIsEmpty),
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
 			validation.By(passwordValidation(credentials.password)),
 		),
 	); err != nil {
@@ -81,4 +82,38 @@ func passwordValidation(password string) validation.RuleFunc {
 		}
 		return nil
 	}
+}
+
+type secretsToValidate struct {
+	service  string
+	login    string
+	password string
+}
+
+func NewSecretsToValidate(service, login, password string) *secretsToValidate {
+	return &secretsToValidate{
+		service:  service,
+		login:    login,
+		password: password,
+	}
+}
+
+func (secrets secretsToValidate) ValidateSecrets(ctx context.Context) error {
+	if err := validation.ValidateStructWithContext(ctx, &secrets,
+		validation.Field(&secrets.service,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d", 255)),
+		),
+		validation.Field(&secrets.login,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d", 255)),
+		),
+		validation.Field(&secrets.password,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d", 255)),
+		),
+	); err != nil {
+		return err
+	}
+	return nil
 }

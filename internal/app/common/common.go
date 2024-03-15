@@ -3,12 +3,21 @@ package common
 import "time"
 
 type Storager interface {
+	AuthStorager
+	SecretsStorager
+}
+
+type AuthStorager interface {
 	Register(email, password string) error
 	Authenticate(email, password string) error
+}
+
+type SecretsStorager interface {
 	StoreSecrets(service, login, password, userEmail string) error
 	GetAllSecrets(userEmail string) (AllSecrets, error)
 	GeServiceRelatedSecrets(userEmail, service string) (AllSecrets, error)
-	EditSecret(userEmail string, secretToEdit SecretToEdit) error
+	EditSecret(userEmail, uuid, service, login, password string) error
+	DeleteSecret(userEmail, uuid string) error
 }
 
 type Secrets struct {
@@ -19,13 +28,6 @@ type Secrets struct {
 	Login     string    `json:"login"`
 	Password  string    `json:"password"`
 	Email     string    `json:"email"`
-}
-
-type SecretToEdit struct {
-	Uuid     string `json:"uuid"`
-	Service  string `json:"service"`
-	Login    string `json:"login"`
-	Password string `json:"password"`
 }
 
 type AllSecrets struct {
@@ -39,4 +41,17 @@ type Credentials struct {
 	Uuid      string
 	Email     string
 	Password  string
+}
+
+type TextData struct {
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Uuid      string    `json:"uuid"`
+	Email     string    `json:"email"`
+	Title     string    `json:"title"`
+	Text      string    `json:"text"`
+}
+
+type AllTexts struct {
+	Texts []TextData `json:"texts"`
 }

@@ -17,4 +17,5 @@ func InitRouter(app *fiber.App, handlers *handler.Handlers, storage common.Stora
 	secret.Get("/", handlers.GetAllPrivates())
 	secret.Get("/:service", handlers.GetServicePrivates())
 	secret.Put("/", handlers.EditServicePrivates())
+	secret.Delete("/:uuid", handlers.DeleteServicePrivates())
 }
