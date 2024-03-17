@@ -24,7 +24,9 @@ func (h *Handlers) StoreText() func(c *fiber.Ctx) error {
 				Error: err.Error(),
 			})
 		}
-		return nil
+		return c.Status(200).JSON(Message{
+			Msg: "данные получены",
+		})
 	}
 }
 

@@ -57,16 +57,29 @@ func (storage *PsqlStorage) EditSecret(userEmail, uuid, service, login, password
 		return err
 	}
 
+	if checkSecret.Service != service {
+		checkSecret.Service = service
+	}
+	if checkSecret.Login != login {
+		checkSecret.Login = login
+	}
+	if checkSecret.Password != password {
+		checkSecret.Password = password
+	}
+	if checkSecret.Metadata != metadata {
+		checkSecret.Metadata = metadata
+	}
+
 	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, uuid).
 		Save(&common.Secrets{
 			CreatedAt: checkSecret.CreatedAt,
 			Uuid:      checkSecret.Uuid,
 			Email:     userEmail,
 			UpdatedAt: time.Now(),
-			Service:   service,
-			Login:     login,
-			Password:  password,
-			Metadata:  metadata,
+			Service:   checkSecret.Service,
+			Login:     checkSecret.Login,
+			Password:  checkSecret.Password,
+			Metadata:  checkSecret.Metadata,
 		}).Error; err != nil {
 		return err
 	}

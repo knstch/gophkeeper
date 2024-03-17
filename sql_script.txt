@@ -1,0 +1,28 @@
+CREATE TABLE public."text" (
+	created_at timestamp(0) NULL,
+	updated_at timestamp(0) NULL,
+	uuid varchar NULL,
+	title varchar NULL,
+	email varchar NULL,
+	"text" varchar(255) NULL,
+	metadata varchar NULL
+);
+
+CREATE TABLE public.credentials (
+	created_at timestamp(0) NULL,
+	updated_at timestamp(0) NULL,
+	"uuid" varchar NULL,
+	email varchar NULL,
+	"password" varchar NULL
+);
+
+CREATE TABLE public.secrets (
+	created_at timestamp(0) NULL,
+	updated_at timestamp(0) NULL,
+	"uuid" varchar NULL,
+	service varchar NULL,
+	login varchar NULL,
+	"password" varchar NULL,
+	email varchar NULL,
+	metadata varchar NULL
+);

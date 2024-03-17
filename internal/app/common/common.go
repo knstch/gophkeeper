@@ -10,6 +10,7 @@ type Storager interface {
 	AuthStorager
 	SecretsStorager
 	TextStorager
+	BankStorager
 }
 
 type AuthStorager interface {
@@ -27,10 +28,18 @@ type SecretsStorager interface {
 
 type TextStorager interface {
 	AddTextData(text, title, userEmail, metadata string) error
-	EditTextData(text, title, userEmail, uuid, metadata string) error
+	EditTextData(text, title, userEmail, metadata, uuid string) error
 	DeleteTextData(userEmail, uuid string) error
 	GetAllTexts(userEmail string) (*AllTexts, error)
 	GetTitleRelatedText(userEmail, title string) (*AllTexts, error)
+}
+
+type BankStorager interface {
+	StoreCard(userEmail, bankName, cardNumber, date, holderName, metadata string, cvv int) error
+	GetAllCards(userEmail string) (*AllCards, error)
+	GetBankRelatedCards(userEmail, bankName string) (*AllCards, error)
+	EditBankCard(userEmail, bankName, cardNumber, date, holderName, metadata, uuid string, cvv int) error
+	DeleteCard(userEmail, uuid string) error
 }
 
 type Secrets struct {
@@ -51,7 +60,6 @@ type AllSecrets struct {
 type Credentials struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt time.Time
 	Uuid      string
 	Email     string
 	Password  string
@@ -69,6 +77,23 @@ type Text struct {
 
 type AllTexts struct {
 	Texts []Text `json:"texts"`
+}
+
+type Card struct {
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	Uuid       string    `json:"uuid"`
+	Email      string    `json:"email"`
+	BankName   string    `json:"bank_name"`
+	CardNumber string    `json:"card_number"`
+	Date       string    `json:"date"`
+	HolderName string    `json:"holder_name"`
+	Cvv        int       `json:"cvv"`
+	Metadata   string    `json:"metadata"`
+}
+
+type AllCards struct {
+	Cards []Card `json:"cards"`
 }
 
 func RetrieveLogin(c *fiber.Ctx) (string, error) {

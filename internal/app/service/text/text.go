@@ -37,8 +37,7 @@ func (texts *TextService) StoreTexts(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := texts.storage.AddTextData(texts.Text, texts.Title,
-		email, texts.Metadata); err != nil {
+	if err = texts.storage.AddTextData(texts.Text, texts.Title, email, texts.Metadata); err != nil {
 		return err
 	}
 

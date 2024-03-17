@@ -26,13 +26,10 @@ func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 					Error: err.Error(),
 				})
 			}
-			if err != nil {
-				return c.Status(400).JSON(&Err{
-					Error: err.Error(),
-				})
-			}
+			return c.Status(500).JSON(&Err{
+				Error: err.Error(),
+			})
 
-			return err
 		}
 
 		c.Cookie(&fiber.Cookie{

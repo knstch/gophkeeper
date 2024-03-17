@@ -13,11 +13,7 @@ func (storage *PsqlStorage) AddTextData(text, title, userEmail, metadata string)
 	var checkText *common.Text
 
 	if err := storage.db.Where("email = ? AND title = ?", &userEmail, &title).
-		First(&checkText).Error; err != nil {
-		return err
-	}
-
-	if checkText.Title != "" {
+		First(&checkText).Error; err == nil {
 		return common.ErrTextDouble
 	}
 
@@ -38,7 +34,7 @@ func (storage *PsqlStorage) AddTextData(text, title, userEmail, metadata string)
 	return nil
 }
 
-func (storage *PsqlStorage) EditTextData(text, title, userEmail, uuid, metadata string) error {
+func (storage *PsqlStorage) EditTextData(text, title, userEmail, metadata, uuid string) error {
 	var checkText common.Text
 
 	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, uuid).
@@ -49,14 +45,24 @@ func (storage *PsqlStorage) EditTextData(text, title, userEmail, uuid, metadata 
 		return err
 	}
 
+	if checkText.Text != text {
+		checkText.Text = text
+	}
+	if checkText.Title != title {
+		checkText.Title = title
+	}
+	if checkText.Metadata != metadata {
+		checkText.Metadata = metadata
+	}
+
 	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, uuid).Save(&common.Text{
 		CreatedAt: checkText.CreatedAt,
 		UpdatedAt: time.Now(),
 		Uuid:      checkText.Uuid,
 		Email:     checkText.Email,
-		Title:     title,
-		Text:      text,
-		Metadata:  metadata,
+		Title:     checkText.Title,
+		Text:      checkText.Text,
+		Metadata:  checkText.Metadata,
 	}).Error; err != nil {
 		return err
 	}

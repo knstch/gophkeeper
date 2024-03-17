@@ -17,6 +17,7 @@ func NewHandler(storage common.Storager) *Handlers {
 	return &Handlers{
 		AuthService:   auth.NewAuthService(storage),
 		SecretService: secret.NewSecretService(storage),
+		TextService:   text.NewTextService(storage),
 	}
 }
 
