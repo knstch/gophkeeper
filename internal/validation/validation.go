@@ -115,7 +115,7 @@ func (secrets secretToValidate) ValidateSecrets(ctx context.Context) error {
 			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d символов", 255)),
 		),
 		validation.Field(&secrets.metadata,
-			validation.RuneLength(1, 1000).Error(fmt.Sprintf("значение не может быть больше %d символов", 1000)),
+			validation.RuneLength(0, 1000).Error(fmt.Sprintf("значение не может быть больше %d символов", 1000)),
 		),
 	); err != nil {
 		return err
@@ -124,14 +124,16 @@ func (secrets secretToValidate) ValidateSecrets(ctx context.Context) error {
 }
 
 type textToValidate struct {
-	title string
-	text  string
+	title    string
+	text     string
+	metadata string
 }
 
-func NewTextsToValidate(title, text string) *textToValidate {
+func NewTextsToValidate(title, text, metadata string) *textToValidate {
 	return &textToValidate{
-		title: title,
-		text:  text,
+		title:    title,
+		text:     text,
+		metadata: metadata,
 	}
 }
 
@@ -145,8 +147,59 @@ func (text textToValidate) ValidateText(ctx context.Context) error {
 			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
 			validation.RuneLength(1, 65535).Error(fmt.Sprintf("значение не может быть больше %d символов", 65535)),
 		),
+		validation.Field(&text.metadata,
+			validation.RuneLength(0, 1000).Error(fmt.Sprintf("значение не может быть больше %d символов", 1000)),
+		),
 	); err != nil {
 		return err
 	}
 	return nil
+}
+
+type cardToValidate struct {
+	BankName   string
+	CardNumber string
+	Date       string
+	HolderName string
+	Cvv        int
+	Metadata   string
+}
+
+func NewCardToValidate(BankName, CardNumber, Date, HolderName, Metadata string, Cvv int) *cardToValidate {
+	return &cardToValidate{
+		BankName:   BankName,
+		CardNumber: CardNumber,
+		Date:       Date,
+		HolderName: HolderName,
+		Metadata:   Metadata,
+		Cvv:        Cvv,
+	}
+}
+
+func (card cardToValidate) ValidateCard(ctx context.Context) error {
+	validation.ValidateStructWithContext(ctx, &card,
+		validation.Field(&card.BankName,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.RuneLength(1, 35).Error(fmt.Sprintf("название банка не может быть больше %d символов", 35))),
+		validation.Field(&card.CardNumber,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.RuneLength(16, 16).Error("номер карты должен быть 16 символов")),
+		validation.Field(&card.Cvv,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.RuneLength(3, 3).Error("cvv может быть только 3 символа")),
+		validation.Field(&card.Date,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.By(cardDateValidation(card.Date))))
+	return nil
+}
+
+func cardDateValidation(date string) validation.RuleFunc {
+	return func(value interface{}) error {
+		dateRegex := `^[0-9]+/[0-9]$`
+		r := regexp.MustCompile(dateRegex)
+		if !r.MatchString(date) {
+			return common.ErrBadCardDate
+		}
+		return nil
+	}
 }

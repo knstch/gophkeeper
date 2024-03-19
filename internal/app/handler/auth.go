@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"net/http"
 	"strings"
 
 	fiber "github.com/gofiber/fiber/v2"
@@ -12,21 +13,21 @@ func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 		accessToken, err := h.AuthService.SignUp(c.Context(), c.Request().Body())
 		if err != nil {
 			if err.Error() == common.ErrIntegrityViolation.Error() {
-				return c.Status(409).JSON(&Err{
+				return c.Status(http.StatusConflict).JSON(&Err{
 					Error: "эта почта уже занята",
 				})
 			}
 			if strings.Contains(err.Error(), common.ErrBadPass.Error()) {
-				return c.Status(400).JSON(&Err{
+				return c.Status(http.StatusBadRequest).JSON(&Err{
 					Error: err.Error(),
 				})
 			}
 			if strings.Contains(err.Error(), common.ErrBadEmail.Error()) {
-				return c.Status(400).JSON(&Err{
+				return c.Status(http.StatusBadRequest).JSON(&Err{
 					Error: err.Error(),
 				})
 			}
-			return c.Status(500).JSON(&Err{
+			return c.Status(http.StatusInternalServerError).JSON(&Err{
 				Error: err.Error(),
 			})
 
@@ -38,7 +39,7 @@ func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 			Path:  "/",
 		})
 
-		return c.Status(200).JSON(&Message{
+		return c.Status(http.StatusOK).JSON(&Message{
 			Msg: "вы успешно залогинились!",
 		})
 	}
@@ -49,7 +50,7 @@ func (h *Handlers) AuthenticateWithEmail() func(c *fiber.Ctx) error {
 		accessToken, err := h.AuthService.SignIn(c.Request().Body())
 		if err != nil {
 			if err.Error() == common.ErrUserNotFound.Error() {
-				return c.Status(404).JSON(&Message{
+				return c.Status(http.StatusNotFound).JSON(&Message{
 					Msg: "неверная почта или пароль",
 				})
 			}
@@ -62,7 +63,7 @@ func (h *Handlers) AuthenticateWithEmail() func(c *fiber.Ctx) error {
 			Path:  "/",
 		})
 
-		return c.Status(200).JSON(&Message{
+		return c.Status(http.StatusOK).JSON(&Message{
 			Msg: "вы успешно залогинились!",
 		})
 	}

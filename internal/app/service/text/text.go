@@ -27,7 +27,7 @@ func (texts *TextService) StoreTexts(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := validation.NewTextsToValidate(texts.Title, texts.Text).
+	if err := validation.NewTextsToValidate(texts.Title, texts.Text, texts.Metadata).
 		ValidateText(c.Context()); err != nil {
 		return err
 	}

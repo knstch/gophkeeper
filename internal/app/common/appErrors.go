@@ -16,4 +16,5 @@ var (
 	ErroNoDataWereFound   = errors.New("данные не найдены")
 	ErrFieldIsEmpty       = errors.New("значение не может быть пустым")
 	ErrTextDouble         = errors.New("этот заголовок уже использован")
+	ErrBadCardDate        = errors.New("неверно указана дата на карте")
 )

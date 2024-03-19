@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/knstch/gophkeeper/internal/app/common"
@@ -18,7 +20,7 @@ func WithCookieLogin() fiber.Handler {
 		userEmail, err := jwt.GetEmail(req)
 		if err != nil {
 			if err == common.ErrNotLoggedIn || err == common.ErrInvalidToken {
-				return c.Status(401).JSON(handler.Message{
+				return c.Status(http.StatusForbidden).JSON(handler.Message{
 					Msg: "необходимо зарегестрироваться или авторизоваться",
 				})
 			}
