@@ -96,6 +96,15 @@ type AllCards struct {
 	Cards []Card `json:"cards"`
 }
 
+type File struct {
+	CreatedAt   time.Time `json:"created_at"`
+	Uuid        string    `json:"uuid"`
+	Email       string    `json:"email"`
+	FileName    string
+	ContentType string
+	Data        *[]byte
+}
+
 func RetrieveLogin(c *fiber.Ctx) (string, error) {
 	if c.Locals("login") == nil {
 		return "", ErrNotLoggedIn

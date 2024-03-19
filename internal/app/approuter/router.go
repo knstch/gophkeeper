@@ -26,10 +26,13 @@ func InitRouter(app *fiber.App, handlers *handler.Handlers, storage common.Stora
 	text.Put("/", handlers.EditText())
 	text.Delete("/:uuid", handlers.DeleteText())
 
-	bank := app.Group("/bank")
+	bank := app.Group("/bank", middleware.WithCookieLogin())
 	bank.Post("/", handlers.StoreBankCard())
 	bank.Get("/", handlers.GetAllCards())
 	bank.Get("/:bank", handlers.GetCardsByBankName())
 	bank.Put("/", handlers.EditBankCard())
 	bank.Delete("/:uuid", handlers.DeleteBankCard())
+
+	bin := app.Group("/bin")
+	bin.Post("/", handlers.StoreBin())
 }
