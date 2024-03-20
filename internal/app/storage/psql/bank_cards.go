@@ -30,7 +30,7 @@ func (storage *PsqlStorage) StoreCard(userEmail, bankName, cardNumber, date, hol
 func (storage *PsqlStorage) GetAllCards(userEmail string) (*common.AllCards, error) {
 	var cards []common.Card
 
-	if err := storage.db.Where("email = ?", userEmail).Find(cards).Error; err != nil {
+	if err := storage.db.Where("email = ?", userEmail).Find(&cards).Error; err != nil {
 		return &common.AllCards{}, err
 	}
 
@@ -56,8 +56,8 @@ func (storage *PsqlStorage) EditBankCard(userEmail, bankName, cardNumber,
 	date, holderName, metadata, uuid string, cvv int) error {
 	var checkCard common.Card
 
-	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, uuid).Find(&checkCard).Error; err == nil {
-		return common.ErroNoDataWereFound
+	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, uuid).Find(&checkCard).Error; err != nil {
+		return err
 	}
 
 	if checkCard.BankName != bankName {

@@ -51,7 +51,7 @@ func (h *Handlers) GetTextByTitle() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		data, err := h.TextService.GetTextByTitle(c)
 		if err != nil {
-			if err == common.ErroNoDataWereFound {
+			if err == common.ErrNoDataWereFound {
 				return c.Status(204).JSON(data)
 			}
 			return c.Status(500).JSON(&Err{
@@ -75,7 +75,7 @@ func (h *Handlers) EditText() func(c *fiber.Ctx) error {
 					Error: err.Error(),
 				})
 			}
-			if err == common.ErroNoDataWereFound {
+			if err == common.ErrNoDataWereFound {
 				return c.Status(400).JSON(&Err{
 					Error: "ошибка запроса, данные не найдены",
 				})
@@ -93,13 +93,13 @@ func (h *Handlers) EditText() func(c *fiber.Ctx) error {
 func (h *Handlers) DeleteText() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		if err := h.TextService.DeleteText(c); err != nil {
-			if err == common.ErroNoDataWereFound {
+			if err == common.ErrNoDataWereFound {
 				return c.Status(400).JSON(&Err{
 					Error: "ошибка запроса, данные не найдены",
 				})
 			}
 			return c.Status(500).JSON(&Err{
-				Error: "внутренняя ошибка сервиса",
+				Error: err.Error(),
 			})
 		}
 		return c.Status(200).JSON(&Message{

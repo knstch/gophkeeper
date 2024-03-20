@@ -55,6 +55,10 @@ func (texts *TextService) GetAllTexts(c *fiber.Ctx) (common.AllTexts, error) {
 		return common.AllTexts{}, nil
 	}
 
+	if len(allTexts.Texts) == 0 {
+		return common.AllTexts{}, common.ErrNoDataWereFound
+	}
+
 	return *allTexts, nil
 }
 
@@ -70,7 +74,7 @@ func (texts *TextService) GetTextByTitle(c *fiber.Ctx) (common.AllTexts, error) 
 	}
 
 	if len(allTexts.Texts) == 0 {
-		return common.AllTexts{}, common.ErroNoDataWereFound
+		return common.AllTexts{}, common.ErrNoDataWereFound
 	}
 
 	return *allTexts, nil
@@ -100,7 +104,7 @@ func (texts *TextService) EditText(c *fiber.Ctx) error {
 	}
 
 	if err = texts.storage.EditTextData(texts.Text, texts.Title, email,
-		texts.Uuid, texts.Metadata); err != nil {
+		texts.Metadata, texts.Uuid); err != nil {
 		return err
 	}
 

@@ -4,6 +4,7 @@ import (
 	"github.com/knstch/gophkeeper/internal/app/common"
 	"github.com/knstch/gophkeeper/internal/app/service/auth"
 	"github.com/knstch/gophkeeper/internal/app/service/bank"
+	"github.com/knstch/gophkeeper/internal/app/service/binary"
 	"github.com/knstch/gophkeeper/internal/app/service/secret"
 	"github.com/knstch/gophkeeper/internal/app/service/text"
 )
@@ -13,6 +14,7 @@ type Handlers struct {
 	SecretService *secret.SecretService
 	TextService   *text.TextService
 	BankService   *bank.BankService
+	BinService    *binary.BinaryService
 }
 
 func NewHandler(storage common.Storager) *Handlers {
@@ -21,6 +23,7 @@ func NewHandler(storage common.Storager) *Handlers {
 		SecretService: secret.NewSecretService(storage),
 		TextService:   text.NewTextService(storage),
 		BankService:   bank.NewBankService(storage),
+		BinService:    binary.NewBinaryService(storage),
 	}
 }
 

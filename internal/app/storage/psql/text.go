@@ -40,7 +40,7 @@ func (storage *PsqlStorage) EditTextData(text, title, userEmail, metadata, uuid 
 	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, uuid).
 		First(&checkText).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return common.ErroNoDataWereFound
+			return common.ErrNoDataWereFound
 		}
 		return err
 	}
@@ -90,7 +90,7 @@ func (storage *PsqlStorage) GetAllTexts(userEmail string) (*common.AllTexts, err
 
 func (storage *PsqlStorage) GetTitleRelatedText(userEmail, title string) (*common.AllTexts, error) {
 	var texts []common.Text
-	if err := storage.db.Where("email = ? AND service = ?", userEmail, title).Find(&texts).Error; err != nil {
+	if err := storage.db.Where("email = ? AND title = ?", userEmail, title).Find(&texts).Error; err != nil {
 		return &common.AllTexts{}, err
 	}
 	return &common.AllTexts{

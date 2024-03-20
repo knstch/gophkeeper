@@ -22,7 +22,7 @@ func (h *Handlers) StoreBankCard() func(c *fiber.Ctx) error {
 				})
 			}
 			return c.Status(http.StatusInternalServerError).JSON(&Err{
-				Error: "внутренняя ошибка сервиса",
+				Error: err.Error(),
 			})
 		}
 		return c.Status(http.StatusCreated).JSON(Message{
@@ -36,7 +36,7 @@ func (h *Handlers) EditBankCard() func(c *fiber.Ctx) error {
 		if err := h.BankService.EditBankCard(c); err != nil {
 			if strings.Contains(err.Error(), common.ErrFieldIsEmpty.Error()) {
 				return c.Status(http.StatusBadRequest).JSON(&Err{
-					Error: "поле не может быть пустым",
+					Error: err.Error(),
 				})
 			}
 			if strings.Contains(err.Error(), common.ErrLength) {
@@ -44,13 +44,13 @@ func (h *Handlers) EditBankCard() func(c *fiber.Ctx) error {
 					Error: err.Error(),
 				})
 			}
-			if err == common.ErroNoDataWereFound {
+			if err == common.ErrNoDataWereFound {
 				return c.Status(http.StatusBadRequest).JSON(&Err{
 					Error: "ошибка запроса, данные не найдены",
 				})
 			}
 			return c.Status(http.StatusInternalServerError).JSON(&Err{
-				Error: "внутренняя ошибка сервиса",
+				Error: err.Error(),
 			})
 		}
 
@@ -63,13 +63,13 @@ func (h *Handlers) EditBankCard() func(c *fiber.Ctx) error {
 func (h *Handlers) DeleteBankCard() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		if err := h.BankService.DeleteBankCard(c); err != nil {
-			if err == common.ErroNoDataWereFound {
+			if err == common.ErrNoDataWereFound {
 				return c.Status(http.StatusBadRequest).JSON(&Err{
 					Error: "ошибка запроса, данные не найдены",
 				})
 			}
 			return c.Status(http.StatusInternalServerError).JSON(&Err{
-				Error: "внутренняя ошибка сервиса",
+				Error: err.Error(),
 			})
 		}
 		return c.Status(http.StatusOK).JSON(Message{
@@ -82,13 +82,13 @@ func (h *Handlers) GetAllCards() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		cards, err := h.BankService.GetAllCards(c)
 		if err != nil {
-			if err == common.ErroNoDataWereFound {
+			if err == common.ErrNoDataWereFound {
 				return c.Status(http.StatusNoContent).JSON(&Err{
 					Error: "пусто",
 				})
 			}
 			return c.Status(http.StatusInternalServerError).JSON(&Err{
-				Error: "внутренняя ошибка сервиса",
+				Error: err.Error(),
 			})
 		}
 
@@ -100,13 +100,13 @@ func (h *Handlers) GetCardsByBankName() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		cards, err := h.BankService.GetCardsByBankName(c)
 		if err != nil {
-			if err == common.ErroNoDataWereFound {
+			if err == common.ErrNoDataWereFound {
 				return c.Status(http.StatusNoContent).JSON(&Err{
 					Error: "пусто",
 				})
 			}
 			return c.Status(http.StatusInternalServerError).JSON(&Err{
-				Error: "внутренняя ошибка сервиса",
+				Error: err.Error(),
 			})
 		}
 

@@ -59,7 +59,7 @@ func (secret *SecretService) GetAllSecrets(c *fiber.Ctx) (common.AllSecrets, err
 	}
 
 	if len(allSecrets.Secrets) == 0 {
-		return common.AllSecrets{}, common.ErroNoDataWereFound
+		return common.AllSecrets{}, common.ErrNoDataWereFound
 	}
 
 	return *allSecrets, nil
@@ -77,7 +77,7 @@ func (secret *SecretService) GetSecretsByService(c *fiber.Ctx) (common.AllSecret
 	}
 
 	if len(allSecrets.Secrets) == 0 {
-		return common.AllSecrets{}, common.ErroNoDataWereFound
+		return common.AllSecrets{}, common.ErrNoDataWereFound
 	}
 
 	return *allSecrets, nil

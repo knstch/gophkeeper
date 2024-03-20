@@ -52,7 +52,7 @@ func (storage *PsqlStorage) EditSecret(userEmail, uuid, service, login, password
 	if err := storage.db.Where("email = ? AND uuid = ?", userEmail, uuid).
 		First(&checkSecret).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return common.ErroNoDataWereFound
+			return common.ErrNoDataWereFound
 		}
 		return err
 	}

@@ -11,6 +11,7 @@ type Storager interface {
 	SecretsStorager
 	TextStorager
 	BankStorager
+	BinaryStorager
 }
 
 type AuthStorager interface {
@@ -40,6 +41,13 @@ type BankStorager interface {
 	GetBankRelatedCards(userEmail, bankName string) (*AllCards, error)
 	EditBankCard(userEmail, bankName, cardNumber, date, holderName, metadata, uuid string, cvv int) error
 	DeleteCard(userEmail, uuid string) error
+}
+
+type BinaryStorager interface {
+	StoreBinary(fileName, contentType, email string, binaryData *[]byte) error
+	GetBinaryFile(email, filename, uuid string) (*File, error)
+	DeleteBinaryFile(email, uuid string) error
+	EditBinaryName(email, uuid, name string) error
 }
 
 type Secrets struct {
@@ -98,10 +106,11 @@ type AllCards struct {
 
 type File struct {
 	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 	Uuid        string    `json:"uuid"`
 	Email       string    `json:"email"`
-	FileName    string
-	ContentType string
+	FileName    string    `json:"file_name"`
+	ContentType string    `json:"content_type"`
 	Data        *[]byte
 }
 

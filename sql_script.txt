@@ -1,7 +1,7 @@
 CREATE TABLE public."text" (
 	created_at timestamp(0) NULL,
 	updated_at timestamp(0) NULL,
-	uuid varchar NULL,
+	uuid UUID PRIMARY KEY,
 	title varchar NULL,
 	email varchar NULL,
 	"text" varchar(255) NULL,
@@ -11,7 +11,7 @@ CREATE TABLE public."text" (
 CREATE TABLE public.credentials (
 	created_at timestamp(0) NULL,
 	updated_at timestamp(0) NULL,
-	"uuid" varchar NULL,
+	"uuid" UUID PRIMARY KEY,
 	email varchar NULL,
 	"password" varchar NULL
 );
@@ -19,10 +19,33 @@ CREATE TABLE public.credentials (
 CREATE TABLE public.secrets (
 	created_at timestamp(0) NULL,
 	updated_at timestamp(0) NULL,
-	"uuid" varchar NULL,
+	"uuid" UUID PRIMARY KEY,
 	service varchar NULL,
 	login varchar NULL,
 	"password" varchar NULL,
 	email varchar NULL,
 	metadata varchar NULL
+);
+
+CREATE TABLE public.files (
+	created_at timestamp(0) NULL,
+	updated_at timestamp(0) NULL,
+	"uuid" UUID PRIMARY KEY,
+	email varchar NULL,
+	file_name varchar NULL,
+	content_type varchar NULL,
+	data BYTEA NULL
+)
+
+CREATE TABLE public.cards (
+    uuid UUID PRIMARY KEY,
+    created_at timestamp(0) NULL,
+    updated_at timestamp(0) NULL,
+    email VARCHAR NULL,
+    bank_name VARCHAR NULL,
+    card_number VARCHAR NULL,
+    date VARCHAR(5) NULL,
+    holder_name VARCHAR NULL,
+    cvv VARCHAR NULL,
+    metadata varchar NULL
 );

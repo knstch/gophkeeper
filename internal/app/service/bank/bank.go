@@ -59,6 +59,10 @@ func (bank *BankService) GetAllCards(c *fiber.Ctx) (*common.AllCards, error) {
 		return &common.AllCards{}, err
 	}
 
+	if len(cards.Cards) == 0 {
+		return &common.AllCards{}, common.ErrNoDataWereFound
+	}
+
 	return cards, nil
 }
 
@@ -73,11 +77,20 @@ func (bank *BankService) GetCardsByBankName(c *fiber.Ctx) (*common.AllCards, err
 		return &common.AllCards{}, nil
 	}
 
+	if len(cards.Cards) == 0 {
+		return &common.AllCards{}, common.ErrNoDataWereFound
+	}
+
 	return cards, nil
 }
 
 func (bank *BankService) EditBankCard(c *fiber.Ctx) error {
 	if err := json.Unmarshal(c.Body(), &bank); err != nil {
+		return err
+	}
+
+	if err := validation.NewCardToValidate(bank.BankName, bank.CardNumber, bank.Date, bank.HolderName, bank.Metadata, bank.Cvv).
+		ValidateCard(c.Context()); err != nil {
 		return err
 	}
 

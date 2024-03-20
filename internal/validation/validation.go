@@ -10,6 +10,11 @@ import (
 	"github.com/knstch/gophkeeper/internal/app/common"
 )
 
+var (
+	LengthErr = "название %s не может быть больше %d символов"
+	SizeErr   = "разрешено добавлять файлы не более %d мб"
+)
+
 type credentialsToValidate struct {
 	email    string
 	password string
@@ -141,7 +146,7 @@ func (text textToValidate) ValidateText(ctx context.Context) error {
 	if err := validation.ValidateStructWithContext(ctx, &text,
 		validation.Field(&text.title,
 			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
-			validation.RuneLength(1, 255).Error(fmt.Sprintf("значение не может быть больше %d символов", 255)),
+			validation.RuneLength(1, 255).Error(fmt.Sprintf(LengthErr, "текста", 255)),
 		),
 		validation.Field(&text.text,
 			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
@@ -177,29 +182,100 @@ func NewCardToValidate(BankName, CardNumber, Date, HolderName, Metadata string, 
 }
 
 func (card cardToValidate) ValidateCard(ctx context.Context) error {
-	validation.ValidateStructWithContext(ctx, &card,
+	if err := validation.ValidateStructWithContext(ctx, &card,
 		validation.Field(&card.BankName,
 			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
-			validation.RuneLength(1, 35).Error(fmt.Sprintf("название банка не может быть больше %d символов", 35))),
+			validation.RuneLength(1, 35).Error(fmt.Sprintf(LengthErr, "банка", 35))),
 		validation.Field(&card.CardNumber,
 			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
 			validation.RuneLength(16, 16).Error("номер карты должен быть 16 символов")),
 		validation.Field(&card.Cvv,
 			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
-			validation.RuneLength(3, 3).Error("cvv может быть только 3 символа")),
+			validation.By(validateCvv(100, 999))),
 		validation.Field(&card.Date,
 			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
-			validation.By(cardDateValidation(card.Date))))
+			validation.By(cardDateValidation(card.Date))),
+	); err != nil {
+		return err
+	}
 	return nil
+}
+
+func validateCvv(min, max int) validation.RuleFunc {
+	return func(value interface{}) error {
+		num, ok := value.(int)
+		if !ok {
+			return common.ErrNotInt
+		}
+		if num < min || num > max {
+			return common.ErrWrongCvv
+		}
+		return nil
+	}
 }
 
 func cardDateValidation(date string) validation.RuleFunc {
 	return func(value interface{}) error {
-		dateRegex := `^[0-9]+/[0-9]$`
+		dateRegex := `^[0-9]{2}/[0-9]{2}$`
 		r := regexp.MustCompile(dateRegex)
 		if !r.MatchString(date) {
 			return common.ErrBadCardDate
 		}
 		return nil
 	}
+}
+
+var (
+	png  string = "image/png"
+	jpeg string = "image/jpeg"
+	text string = "text/plain; charset=utf-8"
+
+	dataTypes = []string{
+		png,
+		jpeg,
+		text,
+	}
+
+	dataTypesStringToInterface = stringSliceToInterfaceSlice(dataTypes)
+)
+
+func stringSliceToInterfaceSlice(Values []string) []interface{} {
+	interfaces := make([]interface{}, len(Values))
+	for i := range Values {
+		interfaces[i] = Values[i]
+	}
+	return interfaces
+}
+
+type fileToValidate struct {
+	FileName    string
+	ContentType string
+	Data        *[]byte
+}
+
+func NewFileToValidate(fileName, contentType string, data *[]byte) *fileToValidate {
+	return &fileToValidate{
+		FileName:    fileName,
+		ContentType: contentType,
+		Data:        data,
+	}
+}
+
+func (file fileToValidate) ValidateFile(ctx context.Context) error {
+	fmt.Println(file.ContentType)
+	if err := validation.ValidateStructWithContext(ctx, &file,
+		validation.Field(&file.FileName,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.RuneLength(1, 50).Error(fmt.Sprintf(LengthErr, "файла", 50))),
+		validation.Field(&file.ContentType,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.In(dataTypesStringToInterface...)),
+		validation.Field(&file.Data,
+			validation.Required.Error(common.ErrFieldIsEmpty.Error()),
+			validation.Length(1, 5e+6).Error(fmt.Errorf(SizeErr, "5").Error())),
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
