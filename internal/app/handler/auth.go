@@ -27,6 +27,11 @@ func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 					Error: err.Error(),
 				})
 			}
+			if strings.Contains(err.Error(), common.ErrFieldIsEmpty.Error()) {
+				return c.Status(http.StatusBadRequest).JSON(&Err{
+					Error: err.Error(),
+				})
+			}
 			return c.Status(http.StatusInternalServerError).JSON(&Err{
 				Error: err.Error(),
 			})
@@ -40,7 +45,7 @@ func (h *Handlers) RegisterWithEmail() func(c *fiber.Ctx) error {
 		})
 
 		return c.Status(http.StatusOK).JSON(&Message{
-			Msg: "вы успешно залогинились!",
+			Msg: "вы успешно зарегестрировались!",
 		})
 	}
 }
